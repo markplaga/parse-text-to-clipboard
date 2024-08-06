@@ -25,7 +25,8 @@
         function parseText() {
             const textInput = document.getElementById("textInput").value;
             if (paragraphs.length === 0 && textInput.trim() !== "") {
-                paragraphs = textInput.split(/\n\s*\n/).map(para => para.trim()).filter(para => para.length > 0);
+                // Split text by either a new line or a blank line
+                paragraphs = textInput.split(/(?:\r?\n)+/).map(para => para.trim()).filter(para => para.length > 0);
             }
 
             if (currentIndex < paragraphs.length) {
