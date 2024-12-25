@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark's Awesome JavaScript Parsing Tool</title>
+    <style>
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mark's Awesome JavaScript Parsing Tool</h1>
+    <label for="textInput">Enter multiple paragraphs:</label><br>
+    <textarea id="textInput" rows="10" cols="50" placeholder="Enter multiple paragraphs here..."></textarea><br>
+    <button id="parseButton">Copy next entry</button>
+    <button id="resetButton">Reset</button>
+    <p id="message" aria-live="polite"></p>
+    <p id="currentEntry"></p>
+
+    <script>
+        let paragraphs = [];
+        let currentIndex = 0;
+
+        document.getElementById("parseButton").addEventListener("click", parseText);
+        document.getElementById("resetButton").addEventListener("click", resetForm);
+
+        async function parseText() {
+            const textInput = document.getElementById("textInput").value;
+            const messageElement = document.getElementById("message");
+
+            if (paragraphs.length === 0 && textInput.trim()) {
+                paragraphs = textInput
+                    .split(/(?:\r?\n)+/)
+                    .map(para => para.trim())
+                    .filter(para => para.length > 0);
+            }
+
+            if (currentIndex < paragraphs.length) {
+                const nextParagraph = paragraphs[currentIndex];
+                currentIndex++;
+                try {
+                    await navigator.clipboard.writeText(nextParagraph);
+                    messageElement.textContent = `Entry ${currentIndex} of ${paragraphs.length} copied to clipboard.`;
+                    messageElement.className = "success";
+                } catch (err) {
+                    messageElement.textContent = "Failed to copy text: " + err.message;
+                    messageElement.className = "error";
+                }
+                updateCurrentEntry();
+            } else {
+                messageElement.textContent = "You have reached the end. No new text copied.";
+                messageElement.className = "error";
+                setTimeout(resetForm, 5000);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById("textInput").value = "";
+            document.getElementById("message").textContent = "";
+            document.getElementById("message").className = "";
+            document.getElementById("currentEntry").textContent = "";
+            paragraphs = [];
+            currentIndex = 0;
+        }
+
+        function updateCurrentEntry() {
+            const currentEntryElement = document.getElementById("currentEntry");
+            currentEntryElement.textContent = `Current entry: ${currentIndex} of ${paragraphs.length}`;
+        }
+    </script>
+</body>
+</html>
