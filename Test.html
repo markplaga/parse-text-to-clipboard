@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark's Awesome JavaScript Parsing Tool</title>
+    <style>
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mark's Awesome JavaScript Parsing Tool</h1>
+    <textarea id="textInput" rows="10" cols="50" placeholder="Enter multiple paragraphs here..."></textarea><br>
+    <button onclick="pasteFromClipboard()">Paste Clipboard</button>
+    <button onclick="parseText()">Copy next entry</button>
+    <button onclick="resetForm()">Reset</button>
+    <p id="message"></p>
+    <p id="currentEntry"></p>
+
+    <script>
+        let paragraphs = [];
+        let currentIndex = 0;
+
+        function parseText() {
+            const textInput = document.getElementById("textInput").value;
+            if (paragraphs.length === 0 && textInput.trim() !== "") {
+                // Split text by either a new line or a blank line
+                paragraphs = textInput.split(/(?:\r?\n)+/).map(para => para.trim()).filter(para => para.length > 0);
+            }
+
+            if (currentIndex < paragraphs.length) {
+                const nextParagraph = paragraphs[currentIndex];
+                currentIndex++;
+                copyToClipboard(nextParagraph);
+                displayCurrentEntry();
+            } else {
+                const messageElement = document.getElementById("message");
+                messageElement.textContent = "You have reached the end, nothing new has been copied to the clipboard.";
+                messageElement.classList.add("error");
+                setTimeout(resetForm, 5000);
+            }
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand("copy");
+                document.getElementById("message").textContent = `Entry ${currentIndex} of ${paragraphs.length} is in the clipboard: ${text}`;
+            } catch (err) {
+                document.getElementById("message").textContent = "Failed to copy text: " + err;
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function resetForm() {
+            document.getElementById("textInput").value = "";
+            document.getElementById("message").textContent = "";
+            document.getElementById("message").classList.remove("error");
+            document.getElementById("currentEntry").textContent = "";
+            paragraphs = [];
+            currentIndex = 0;
+        }
+
+        function displayCurrentEntry() {
+            document.getElementById("currentEntry").textContent = "Current entry: " + currentIndex + " of " + paragraphs.length;
+        }
+
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                const textInput = document.getElementById("textInput");
+                textInput.value += (textInput.value ? "\n" : "") + text; // Appends clipboard content to textarea
+                document.getElementById("message").textContent = "Pasted clipboard content successfully.";
+            } catch (err) {
+                document.getElementById("message").textContent = "Failed to paste from clipboard: " + err;
+                document.getElementById("message").classList.add("error");
+            }
+        }
+    </script>
+</body>
+</html>
