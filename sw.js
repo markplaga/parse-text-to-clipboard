@@ -2,10 +2,12 @@
    Only same-origin files are cached. The app is self-contained, so it works
    fully offline once installed.
    Bump VERSION whenever you change app files so installed copies refresh. */
-const VERSION='parsing-tool-v1';
+const VERSION='parsing-tool-v2';
 const CORE = [
   './', 'index.html', 'manifest.webmanifest',
-  'icons/icon.svg'
+  'icons/icon.svg',
+  'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png',
+  'icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {
